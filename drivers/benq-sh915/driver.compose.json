@@ -1,0 +1,58 @@
+{
+  "name": {
+    "en": "BenQ SH915 Projector"
+  },
+  "class": "tv",
+  "capabilities": ["onoff"],
+  "images": {
+    "small": "{{ driverAssetsPath }}/images/small.png",
+    "large": "{{ driverAssetsPath }}/images/large.png"
+  },
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Projector Settings"
+      },
+      "children": [
+        {
+          "id": "ip_address",
+          "type": "text",
+          "label": {
+            "en": "IP Address"
+          },
+          "value": "10.50.0.220",
+          "hint": {
+            "en": "The IP address of your BenQ projector"
+          }
+        },
+        {
+          "id": "poll_interval",
+          "type": "number",
+          "label": {
+            "en": "Status Check Interval (seconds)"
+          },
+          "value": 300,
+          "min": 30,
+          "max": 600,
+          "hint": {
+            "en": "How often to check projector status (default: 5 minutes)"
+          }
+        }
+      ]
+    }
+  ]
+}

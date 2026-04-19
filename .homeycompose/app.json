@@ -1,0 +1,23 @@
+{
+  "id": "com.dannyfredhill.benq-sh915",
+  "version": "1.0.0",
+  "compatibility": ">=12.0.0",
+  "sdk": 3,
+  "lang": "python",
+  "name": {
+    "en": "BenQ SH915 Projector"
+  },
+  "description": {
+    "en": "Control BenQ SH915 projector via network"
+  },
+  "category": ["video"],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "author": {
+    "name": "Danny Fredhill",
+    "email": "fredhill@example.com"
+  }
+}
