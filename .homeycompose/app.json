@@ -13,6 +13,7 @@
   },
   "category": ["video"],
   "brandColor": "#1a1a2e",
+  "pythonPackages": ["requests>=2.31.0"],
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
