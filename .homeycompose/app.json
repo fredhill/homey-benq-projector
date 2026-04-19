@@ -11,6 +11,7 @@
     "en": "Control BenQ SH915 projector via network"
   },
   "category": ["video"],
+  "brandColor": "#1a1a2e",
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",

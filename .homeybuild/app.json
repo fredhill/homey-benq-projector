@@ -1,0 +1,90 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.dannyfredhill.benq-sh915",
+  "version": "1.0.0",
+  "compatibility": ">=12.0.0",
+  "sdk": 3,
+  "lang": "python",
+  "name": {
+    "en": "BenQ SH915 Projector"
+  },
+  "description": {
+    "en": "Control BenQ SH915 projector via network"
+  },
+  "category": [
+    "video"
+  ],
+  "brandColor": "#1a1a2e",
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "author": {
+    "name": "Danny Fredhill",
+    "email": "fredhill@example.com"
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "BenQ SH915 Projector"
+      },
+      "class": "tv",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "small": "/drivers/benq-sh915/assets/images/small.png",
+        "large": "/drivers/benq-sh915/assets/images/large.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Projector Settings"
+          },
+          "children": [
+            {
+              "id": "ip_address",
+              "type": "text",
+              "label": {
+                "en": "IP Address"
+              },
+              "value": "10.50.0.220",
+              "hint": {
+                "en": "The IP address of your BenQ projector"
+              }
+            },
+            {
+              "id": "poll_interval",
+              "type": "number",
+              "label": {
+                "en": "Status Check Interval (seconds)"
+              },
+              "value": 300,
+              "min": 30,
+              "max": 600,
+              "hint": {
+                "en": "How often to check projector status (default: 5 minutes)"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "benq-sh915"
+    }
+  ]
+}
