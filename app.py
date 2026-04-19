@@ -1,10 +1,10 @@
-"""BenQ SH915 Projector App"""
-from homey import Homey
+from homey.app import App
 
 
-class BenQSH915App(Homey):
-    """BenQ SH915 Projector App"""
-
+class BenQSH915App(App):
     async def on_init(self):
-        """App initialized"""
+        await super().on_init()
         self.log("BenQ SH915 app initialized")
+
+
+homey_export = BenQSH915App
