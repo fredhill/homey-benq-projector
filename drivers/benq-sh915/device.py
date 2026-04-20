@@ -1,4 +1,4 @@
-import time
+import asyncio
 import requests
 from homey.device import Device
 
@@ -11,10 +11,11 @@ class BenQSH915Device(Device):
         settings = self.get_settings()
         self._ip = settings.get("ip_address", "10.50.0.220")
         self._poll_interval = int(settings.get("poll_interval", 300))
+        self._fail_count = 0
 
         self.register_capability_listener("onoff", self._on_onoff)
 
-        await self._check_status()
+        # set_interval fires immediately, so no separate startup check needed
         self.homey.set_interval(self._check_status, self._poll_interval * 1000)
         self.log(f"Polling every {self._poll_interval}s")
 
@@ -36,6 +37,7 @@ class BenQSH915Device(Device):
             self.log("Sending power ON command")
             requests.post(url, timeout=5)
             await self.set_capability_value("onoff", True)
+            await self.set_available()
             self.log("Power ON command sent successfully")
         except requests.exceptions.Timeout:
             self.error("Power ON timed out")
@@ -43,6 +45,7 @@ class BenQSH915Device(Device):
         except Exception as e:
             if "header" in str(e).lower():
                 await self.set_capability_value("onoff", True)
+                await self.set_available()
                 self.log("Power ON sent (header error ignored)")
             else:
                 self.error(f"Power ON failed: {e}")
@@ -63,7 +66,7 @@ class BenQSH915Device(Device):
                 requests.post(base + step, timeout=5)
                 self.log(f"Step {i}/5 sent")
                 if i < len(steps):
-                    time.sleep(0.5)
+                    await asyncio.sleep(0.5)  # non-blocking delay
             await self.set_capability_value("onoff", False)
             self.log("Power OFF sequence completed")
         except Exception as e:
@@ -80,6 +83,7 @@ class BenQSH915Device(Device):
             response = requests.post(url, timeout=3)
             data = response.json()
             value = data[0]["value"]
+            self._fail_count = 0
             if value == 0:
                 await self.set_capability_value("onoff", True)
                 self.log("Status check: ON")
@@ -91,7 +95,11 @@ class BenQSH915Device(Device):
                 self.log("Status check: COOLING")
             await self.set_available()
         except Exception as e:
-            self.error(f"Status check failed: {e}")
+            self._fail_count += 1
+            self.error(f"Status check failed ({self._fail_count}): {e}")
+            # Mark unavailable after 3 consecutive failures
+            if self._fail_count >= 3:
+                await self.set_unavailable("Projector unreachable")
 
 
 homey_export = BenQSH915Device
