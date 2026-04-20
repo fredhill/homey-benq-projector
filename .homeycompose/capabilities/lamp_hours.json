@@ -1,0 +1,11 @@
+{
+  "type": "number",
+  "title": { "en": "Lamp Hours" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "decimals": 0,
+  "units": { "en": "h" },
+  "icon": "/assets/icon.svg"
+}

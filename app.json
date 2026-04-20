@@ -35,7 +35,12 @@
       },
       "class": "tv",
       "capabilities": [
-        "onoff"
+        "onoff",
+        "volume_mute",
+        "volume_set",
+        "lamp_hours",
+        "input_source",
+        "power_state"
       ],
       "images": {
         "small": "/drivers/benq-sh915/assets/images/small.png",
@@ -67,7 +72,7 @@
               "label": {
                 "en": "IP Address"
               },
-              "value": "10.50.0.220",
+              "value": "10.50.0.29",
               "hint": {
                 "en": "The IP address of your BenQ projector"
               }
@@ -90,5 +95,116 @@
       ],
       "id": "benq-sh915"
     }
-  ]
+  ],
+  "capabilities": {
+    "input_source": {
+      "type": "enum",
+      "title": {
+        "en": "Input Source"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "5",
+          "title": {
+            "en": "HDMI 1"
+          }
+        },
+        {
+          "id": "22",
+          "title": {
+            "en": "HDMI 2"
+          }
+        },
+        {
+          "id": "0",
+          "title": {
+            "en": "Computer 1"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Video"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "S-Video"
+          }
+        },
+        {
+          "id": "13",
+          "title": {
+            "en": "Computer 2"
+          }
+        },
+        {
+          "id": "17",
+          "title": {
+            "en": "USB Reader"
+          }
+        },
+        {
+          "id": "18",
+          "title": {
+            "en": "Network Display"
+          }
+        }
+      ]
+    },
+    "lamp_hours": {
+      "type": "number",
+      "title": {
+        "en": "Lamp Hours"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 0,
+      "units": {
+        "en": "h"
+      },
+      "icon": "/assets/icon.svg"
+    },
+    "power_state": {
+      "type": "enum",
+      "title": {
+        "en": "Power State"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "On"
+          }
+        },
+        {
+          "id": "warming",
+          "title": {
+            "en": "Warming Up"
+          }
+        },
+        {
+          "id": "cooling",
+          "title": {
+            "en": "Cooling Down"
+          }
+        },
+        {
+          "id": "standby",
+          "title": {
+            "en": "Standby"
+          }
+        }
+      ]
+    }
+  }
 }

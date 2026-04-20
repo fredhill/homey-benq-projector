@@ -3,7 +3,7 @@
     "en": "BenQ SH915 Projector"
   },
   "class": "tv",
-  "capabilities": ["onoff"],
+  "capabilities": ["onoff", "volume_mute", "volume_set", "lamp_hours", "input_source", "power_state"],
   "images": {
     "small": "/drivers/benq-sh915/assets/images/small.png",
     "large": "/drivers/benq-sh915/assets/images/large.png"
