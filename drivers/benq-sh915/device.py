@@ -9,7 +9,7 @@ class BenQSH915Device(Device):
         self.log("BenQ SH915 device initialized")
 
         settings = self.get_settings()
-        self._ip = settings.get("ip_address", "10.50.0.220")
+        self._ip = settings.get("ip_address", "10.50.0.29")
         self._poll_interval = int(settings.get("poll_interval", 300))
         self._fail_count = 0
 

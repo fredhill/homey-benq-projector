@@ -11,7 +11,7 @@ class BenQSH915Driver(Driver):
             "name": "BenQ SH915 Projector",
             "data": {"id": "benq-sh915"},
             "settings": {
-                "ip_address": "10.50.0.220",
+                "ip_address": "10.50.0.29",
                 "poll_interval": 300,
             },
         }
