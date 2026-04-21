@@ -41,7 +41,7 @@ class BenQSH915Device(Device):
         self.log("BenQ projector device initialized")
 
         settings = self.get_settings()
-        self._ip                  = settings.get("ip_address", "10.50.0.29")
+        self._ip                  = settings.get("ip_address", "")
         self._poll_interval       = int(settings.get("poll_interval", DEFAULT_POLL_INTERVAL))
         self._lamp_warning_hours  = int(settings.get("lamp_warning_hours", DEFAULT_LAMP_WARNING))
         self._network_standby     = bool(settings.get("network_standby", DEFAULT_NETWORK_STANDBY))

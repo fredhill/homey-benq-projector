@@ -1,0 +1,79 @@
+{
+  "app": {
+    "name": "BenQ Network Projector",
+    "description": "Control your BenQ network-enabled projector from Homey. Power on/off, switch inputs, adjust volume, monitor lamp hours with Insights, and build automations — all over your local network with no extra hardware required."
+  },
+  "drivers": {
+    "benq-sh915": {
+      "name": "BenQ Network Projector",
+      "pair": {
+        "list_devices": {
+          "title": "Searching for BenQ projectors...",
+          "subtitle": "Make sure your projector is on and connected to the network"
+        }
+      },
+      "settings": {
+        "ip_address": {
+          "label": "IP Address",
+          "hint": "The IP address of your BenQ projector. Leave empty to use auto-discovery during pairing."
+        },
+        "poll_interval": {
+          "label": "Status Check Interval (seconds)",
+          "hint": "How often to check projector status (default: 2 minutes)"
+        },
+        "lamp_warning_hours": {
+          "label": "Lamp Warning Threshold (hours)",
+          "hint": "Log a warning when lamp hours exceed this value. Rated life is ~3500h on Normal mode."
+        },
+        "network_standby": {
+          "label": "Network Standby Mode",
+          "hint": "Enable if your projector stays reachable when off (check Projector > Standby Settings > Network). When disabled, connection timeouts are treated as the projector being off rather than an error."
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "lamp_hours": {
+      "title": "Lamp Hours",
+      "units": "h"
+    },
+    "input_source": {
+      "title": "Input Source",
+      "values": {
+        "5": "HDMI 1",
+        "22": "HDMI 2",
+        "0": "Computer 1",
+        "1": "Video",
+        "2": "S-Video",
+        "13": "Computer 2",
+        "17": "USB Reader",
+        "18": "Network Display"
+      }
+    },
+    "power_state": {
+      "title": "Power State",
+      "values": {
+        "on": "On",
+        "warming": "Warming Up",
+        "cooling": "Cooling Down",
+        "standby": "Standby"
+      }
+    },
+    "eco_blank": {
+      "title": "ECO Blank",
+      "desc": "Blanks the screen and reduces lamp power. Use during pauses to extend lamp life."
+    },
+    "picture_mode": {
+      "title": "Picture Mode",
+      "values": {
+        "0": "Dynamic",
+        "1": "Presentation",
+        "2": "sRGB",
+        "3": "Cinema",
+        "4": "3D",
+        "5": "User 1",
+        "6": "User 2"
+      }
+    }
+  }
+}

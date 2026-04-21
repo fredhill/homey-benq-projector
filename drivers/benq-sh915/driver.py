@@ -153,10 +153,10 @@ class BenQSH915Driver(Driver):
         if not devices:
             self.log("No projectors found automatically — adding fallback entry")
             devices.append({
-                "name": "BenQ Projector (set correct IP in settings if needed)",
-                "data": {"id": "benq-sh915"},
+                "name": "BenQ Network Projector (enter IP in settings)",
+                "data": {"id": "benq-projector-manual"},
                 "settings": {
-                    "ip_address": "10.50.0.29",
+                    "ip_address": "",
                     "poll_interval": 120,
                     "lamp_warning_hours": 3000,
                     "network_standby": True,

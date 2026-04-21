@@ -1,16 +1,26 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
-  "id": "com.dannyfredhill.benq-sh915",
+  "id": "com.fredhill.benq-projector",
   "version": "1.0.0",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
   "pythonVersion": "3.13",
   "name": {
-    "en": "BenQ SH915 Projector"
+    "en": "BenQ Network Projector"
   },
   "description": {
-    "en": "Control BenQ SH915 projector via network"
+    "en": "Control your BenQ network-enabled projector from Homey. Power on/off, switch inputs, adjust volume, monitor lamp hours with Insights, and build automations — all over your local network with no extra hardware required."
+  },
+  "tags": {
+    "en": [
+      "benq",
+      "projector",
+      "beamer",
+      "hdmi",
+      "home theater",
+      "cinema"
+    ]
   },
   "category": [
     "video"
@@ -25,13 +35,16 @@
     "large": "/assets/images/large.png"
   },
   "author": {
-    "name": "Danny Fredhill",
-    "email": "fredhill@example.com"
+    "name": "Danny Dehaze",
+    "email": "fredhill@mac.com"
+  },
+  "contributing": {
+    "donate": {}
   },
   "drivers": [
     {
       "name": {
-        "en": "BenQ SH915 Projector"
+        "en": "BenQ Network Projector"
       },
       "class": "tv",
       "capabilities": [
@@ -74,9 +87,9 @@
               "label": {
                 "en": "IP Address"
               },
-              "value": "10.50.0.29",
+              "value": "",
               "hint": {
-                "en": "The IP address of your BenQ projector"
+                "en": "The IP address of your BenQ projector. Leave empty to use auto-discovery during pairing."
               }
             },
             {
