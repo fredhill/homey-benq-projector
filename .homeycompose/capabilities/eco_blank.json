@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": { "en": "ECO Blank" },
+  "desc": { "en": "Blanks the screen and reduces lamp power. Use during pauses to extend lamp life." },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "icon": "/assets/icon.svg"
+}

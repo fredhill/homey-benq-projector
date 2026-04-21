@@ -47,11 +47,18 @@ class BenQSH915Device(Device):
         self._network_standby     = bool(settings.get("network_standby", DEFAULT_NETWORK_STANDBY))
         self._fail_count          = 0
         self._feature_profile     = {}
+        self._eco_blank           = False   # tracked locally (BenQ only has toggle)
 
         self.register_capability_listener("onoff",        self._on_onoff)
         self.register_capability_listener("input_source", self._on_input_source)
         self.register_capability_listener("volume_set",   self._on_volume_set)
         self.register_capability_listener("volume_mute",  self._on_volume_mute)
+
+        # Add new capabilities to existing devices without requiring re-pairing
+        for cap in ["eco_blank", "picture_mode"]:
+            await self._ensure_capability(cap)
+        self.register_capability_listener("eco_blank",    self._on_eco_blank)
+        self.register_capability_listener("picture_mode", self._on_picture_mode)
 
         self.homey.set_interval(self._poll, self._poll_interval * 1000)
         self.log(f"Polling every {self._poll_interval}s | "
@@ -70,6 +77,19 @@ class BenQSH915Device(Device):
             self._lamp_warning_hours = int(new_settings["lamp_warning_hours"])
         if "network_standby"     in changed_keys:
             self._network_standby = bool(new_settings["network_standby"])
+
+    # ------------------------------------------------------------------
+    # Capability management
+    # ------------------------------------------------------------------
+
+    async def _ensure_capability(self, cap_id):
+        """Add capability if not already present — avoids needing to re-pair."""
+        try:
+            if not self.has_capability(cap_id):
+                await self.add_capability(cap_id)
+                self.log(f"Added new capability: {cap_id}")
+        except Exception as e:
+            self.log(f"Could not add capability '{cap_id}': {e}")
 
     # ------------------------------------------------------------------
     # Model detection & feature probing
@@ -203,11 +223,16 @@ class BenQSH915Device(Device):
             elif lamp_hours >= self._lamp_warning_hours:
                 self.log(f"WARNING: lamp at {lamp_hours}h — past warning threshold of {self._lamp_warning_hours}h")
 
-        # Input source + volume — only meaningful when fully on
+        # Input source, picture mode, and volume — only meaningful when fully on
         if power == POWER_ON:
             source_id = data.get("nPWSourceID")
             if source_id is not None:
                 await self.set_capability_value("input_source", str(source_id))
+
+            picture_mode = data.get("nPictureMode")
+            if picture_mode is not None:
+                await self.set_capability_value("picture_mode", str(picture_mode))
+
             await self._poll_volume()
 
     async def _poll_volume(self):
@@ -324,6 +349,46 @@ class BenQSH915Device(Device):
         except Exception as e:
             if "header" not in str(e).lower():
                 self.error(f"Mute toggle failed: {e}")
+
+    # ------------------------------------------------------------------
+    # ECO Blank
+    # ------------------------------------------------------------------
+
+    async def _on_eco_blank(self, value, opts=None):
+        """
+        BenQ only has a toggle command — no separate on/off.
+        We track local state and only send the toggle when needed.
+        """
+        if value == self._eco_blank:
+            return  # Already in the desired state, nothing to do
+        url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:851974,v:6"
+        try:
+            requests.post(url, timeout=5)
+            self._eco_blank = value
+            self.log(f"ECO Blank {'on' if value else 'off'}")
+        except Exception as e:
+            if "header" in str(e).lower():
+                self._eco_blank = value
+                self.log(f"ECO Blank {'on' if value else 'off'} (header error ignored)")
+            else:
+                self.error(f"ECO Blank failed: {e}")
+                raise
+
+    # ------------------------------------------------------------------
+    # Picture mode
+    # ------------------------------------------------------------------
+
+    async def _on_picture_mode(self, value, opts=None):
+        """value is string mode ID e.g. '3' for Cinema."""
+        mode_id = int(value)
+        url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:983040,v:{mode_id}"
+        try:
+            requests.post(url, timeout=5)
+            self.log(f"Picture mode set to {mode_id}")
+        except Exception as e:
+            if "header" not in str(e).lower():
+                self.error(f"Picture mode failed: {e}")
+                raise
 
 
 homey_export = BenQSH915Device
