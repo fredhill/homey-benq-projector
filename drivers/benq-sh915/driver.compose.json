@@ -45,11 +45,35 @@
           "label": {
             "en": "Status Check Interval (seconds)"
           },
-          "value": 300,
+          "value": 120,
           "min": 30,
           "max": 600,
           "hint": {
-            "en": "How often to check projector status (default: 5 minutes)"
+            "en": "How often to check projector status (default: 2 minutes)"
+          }
+        },
+        {
+          "id": "lamp_warning_hours",
+          "type": "number",
+          "label": {
+            "en": "Lamp Warning Threshold (hours)"
+          },
+          "value": 3000,
+          "min": 500,
+          "max": 6000,
+          "hint": {
+            "en": "Log a warning when lamp hours exceed this value. Rated life is ~3500h on Normal mode."
+          }
+        },
+        {
+          "id": "network_standby",
+          "type": "checkbox",
+          "label": {
+            "en": "Network Standby Mode"
+          },
+          "value": true,
+          "hint": {
+            "en": "Enable if your projector stays reachable when off (check Projector > Standby Settings > Network). When disabled, connection timeouts are treated as the projector being off rather than an error."
           }
         }
       ]
