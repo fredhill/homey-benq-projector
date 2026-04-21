@@ -1,2 +1,16 @@
+# Homey build artifacts
 .homeybuild/
+
+# Node
 node_modules/
+
+# Python compiled venvs — run `npx homey app dependencies install` to rebuild
+python_packages/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
