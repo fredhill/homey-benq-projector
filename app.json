@@ -25,7 +25,7 @@
   "category": [
     "video"
   ],
-  "brandColor": "#1a1a2e",
+  "brandColor": "#7c3aed",
   "pythonPackages": [
     "requests>=2.31.0"
   ],
@@ -38,6 +38,9 @@
     "name": "Danny Dehaze",
     "email": "fredhill@mac.com"
   },
+  "homepage": "https://github.com/fredhill/homey-benq-projector",
+  "support": "https://github.com/fredhill/homey-benq-projector/issues",
+  "source": "https://github.com/fredhill/homey-benq-projector",
   "contributing": {
     "donate": {}
   },
