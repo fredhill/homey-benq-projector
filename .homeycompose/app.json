@@ -15,7 +15,7 @@
     "en": ["benq", "projector", "beamer", "hdmi", "home theater", "cinema"]
   },
   "category": ["video"],
-  "brandColor": "#1a1a2e",
+  "brandColor": "#7c3aed",
   "pythonPackages": ["requests>=2.31.0"],
   "permissions": [],
   "images": {
