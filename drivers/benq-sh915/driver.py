@@ -135,11 +135,16 @@ class BenQSH915Driver(Driver):
         for ip in candidate_ips:
             ok, status = await loop.run_in_executor(None, _verify_benq, ip, 3)
             if ok and status:
-                name = status.get('acProjectorName', 'BenQ Projector')
+                raw_name = status.get('acProjectorName', '').strip()
                 fw = status.get('acProjectorFWVersion', '?')
-                self.log(f"Confirmed: {name} at {ip} (FW {fw})")
+                # Always prefix with "BenQ" if not already present
+                if raw_name:
+                    display_name = raw_name if raw_name.lower().startswith('benq') else f"BenQ {raw_name}"
+                else:
+                    display_name = "BenQ Projector"
+                self.log(f"Confirmed: {display_name} at {ip} (FW {fw})")
                 devices.append({
-                    "name": f"{name} ({ip})",
+                    "name": f"{display_name} ({ip})",
                     "data": {"id": f"benq-{ip.replace('.', '-')}"},
                     "settings": {
                         "ip_address": ip,
