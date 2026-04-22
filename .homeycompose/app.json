@@ -26,6 +26,9 @@
     "name": "Danny Dehaze",
     "email": "fredhill@mac.com"
   },
+  "homepage": "https://github.com/fredhill/homey-benq-projector",
+  "support": "https://github.com/fredhill/homey-benq-projector/issues",
+  "source": "https://github.com/fredhill/homey-benq-projector",
   "contributing": {
     "donate": {}
   }
