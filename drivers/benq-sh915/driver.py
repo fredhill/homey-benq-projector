@@ -31,51 +31,6 @@ def _verify_benq(ip, timeout=2):
         return False, None
 
 
-def _fetch_model_name(ip, timeout=3):
-    """
-    The bulk status endpoint doesn't include the projector model name.
-    Try two approaches to find it:
-      1. A dedicated identity CGI query (t:26,c:12,p:524288)
-      2. Parse the projector's web root page (title tag or JS variables)
-    Returns a model string like 'SH915', or None if not found.
-    """
-    # Approach 1 — identity parameter set
-    try:
-        url = f"http://{ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:12,p:524288"
-        r = requests.post(url, timeout=timeout)
-        data = json.loads(_strip_trailing_commas(r.text))[0]
-        name = data.get('acProjectorName', '').strip()
-        if name:
-            return name
-    except Exception:
-        pass
-
-    # Approach 2 — parse the web page served at http://ip/
-    try:
-        r = requests.get(f"http://{ip}/", timeout=timeout)
-        text = r.text
-        # Page title often reads "BenQ SH915" or just "SH915"
-        m = re.search(r'<title[^>]*>([^<]{3,40})</title>', text, re.I)
-        if m:
-            title = m.group(1).strip()
-            if title.lower() not in ('benq', 'projector', 'network display', ''):
-                return title
-        # Inline JS variables: acProjectorName = "SH915"
-        for pattern in [
-            r'acProjectorName\s*[=:]\s*["\']([^"\']{2,20})["\']',
-            r'ProjectorModel\s*[=:]\s*["\']([^"\']{2,20})["\']',
-            r'"model"\s*:\s*"([A-Z0-9]{3,12})"',
-        ]:
-            m = re.search(pattern, text, re.I)
-            if m:
-                val = m.group(1).strip()
-                if val:
-                    return val
-    except Exception:
-        pass
-
-    return None
-
 
 def _get_local_ip():
     """Return the local machine's primary IP address."""
@@ -182,11 +137,7 @@ class BenQSH915Driver(Driver):
             ok, status = await loop.run_in_executor(None, _verify_benq, ip, 3)
             if ok and status:
                 fw = status.get('acProjectorFWVersion', '?')
-                # acProjectorName is not included in the bulk status response —
-                # try a dedicated identity query + web page parse as fallbacks
                 raw_name = status.get('acProjectorName', '').strip()
-                if not raw_name:
-                    raw_name = await loop.run_in_executor(None, _fetch_model_name, ip) or ''
                 if raw_name:
                     display_name = raw_name if raw_name.lower().startswith('benq') else f"BenQ {raw_name}"
                 else:

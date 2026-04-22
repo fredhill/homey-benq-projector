@@ -1,33 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 
-  <!-- Light beam: triangle from lens to left edge -->
-  <polygon points="21,44 4,30 4,70 21,56" fill="#c084fc" opacity="0.30"/>
+  <!-- Projector body — fills more of the circle -->
+  <rect x="12" y="24" width="76" height="48" rx="10" ry="10" fill="white"/>
 
-  <!-- Projector body -->
-  <rect x="18" y="32" width="66" height="42" rx="9" ry="9" fill="white"/>
+  <!-- Lens housing — large circle protruding from left side -->
+  <circle cx="32" cy="48" r="22" fill="white"/>
 
-  <!-- Lens housing (circle overlapping the left side of body) -->
-  <circle cx="37" cy="53" r="17" fill="white"/>
+  <!-- Lens barrel ring (dark, creates depth) -->
+  <circle cx="32" cy="48" r="16" fill="#1a1a2e"/>
 
-  <!-- Lens barrel (dark ring) -->
-  <circle cx="37" cy="53" r="12" fill="#1a1a2e"/>
+  <!-- Lens glass — BenQ purple -->
+  <circle cx="32" cy="48" r="10" fill="#a855f7"/>
 
-  <!-- Lens glass (BenQ purple tint) -->
-  <circle cx="37" cy="53" r="7" fill="#a855f7" opacity="0.85"/>
+  <!-- Lens glare highlight -->
+  <circle cx="25" cy="40" r="3.5" fill="white" opacity="0.80"/>
 
-  <!-- Lens glare dot -->
-  <circle cx="32" cy="47" r="2.8" fill="white"/>
+  <!-- Vent slots — right side of body -->
+  <rect x="70" y="32" width="11" height="3" rx="1.5" fill="#7c3aed" opacity="0.65"/>
+  <rect x="70" y="39" width="11" height="3" rx="1.5" fill="#7c3aed" opacity="0.65"/>
+  <rect x="70" y="46" width="11" height="3" rx="1.5" fill="#7c3aed" opacity="0.65"/>
+  <rect x="70" y="53" width="11" height="3" rx="1.5" fill="#7c3aed" opacity="0.65"/>
+  <rect x="70" y="60" width="11" height="3" rx="1.5" fill="#7c3aed" opacity="0.65"/>
 
-  <!-- Vent slots on right side of body -->
-  <rect x="64" y="40" width="13" height="2.5" rx="1.2" fill="#7c3aed" opacity="0.5"/>
-  <rect x="64" y="46" width="13" height="2.5" rx="1.2" fill="#7c3aed" opacity="0.5"/>
-  <rect x="64" y="52" width="13" height="2.5" rx="1.2" fill="#7c3aed" opacity="0.5"/>
-  <rect x="64" y="58" width="13" height="2.5" rx="1.2" fill="#7c3aed" opacity="0.5"/>
-
-  <!-- Status indicator light (green = on) -->
-  <circle cx="75" cy="67" r="3" fill="#00e676"/>
-
-  <!-- Small control button -->
-  <circle cx="68" cy="67" r="3" fill="#7c3aed" opacity="0.7"/>
+  <!-- Status LED — green -->
+  <circle cx="80" cy="67" r="3.5" fill="#00e676"/>
 
 </svg>
