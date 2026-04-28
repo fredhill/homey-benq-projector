@@ -9,7 +9,7 @@
     "en": "BenQ Network Projector"
   },
   "description": {
-    "en": "Control your BenQ network-enabled projector from Homey. Power on/off, switch inputs, adjust volume, monitor lamp hours with Insights, and build automations — all over your local network with no extra hardware required."
+    "en": "Control your BenQ network projector from Homey over your local network — no extra hardware required."
   },
   "tags": {
     "en": ["benq", "projector", "beamer", "hdmi", "home theater", "cinema"]
