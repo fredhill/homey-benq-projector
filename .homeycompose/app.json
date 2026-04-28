@@ -1,6 +1,6 @@
 {
   "id": "com.fredhill.benq-projector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
@@ -12,11 +12,22 @@
     "en": "Control your BenQ network projector from Homey over your local network — no extra hardware required."
   },
   "tags": {
-    "en": ["benq", "projector", "beamer", "hdmi", "home theater", "cinema"]
+    "en": [
+      "benq",
+      "projector",
+      "beamer",
+      "hdmi",
+      "home theater",
+      "cinema"
+    ]
   },
-  "category": ["video"],
+  "category": [
+    "video"
+  ],
   "brandColor": "#7c3aed",
-  "pythonPackages": ["requests>=2.31.0"],
+  "pythonPackages": [
+    "requests>=2.31.0"
+  ],
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",

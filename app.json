@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.fredhill.benq-projector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
@@ -10,7 +10,7 @@
     "en": "BenQ Network Projector"
   },
   "description": {
-    "en": "Control your BenQ network-enabled projector from Homey. Power on/off, switch inputs, adjust volume, monitor lamp hours with Insights, and build automations — all over your local network with no extra hardware required."
+    "en": "Control your BenQ network projector from Homey over your local network — no extra hardware required."
   },
   "tags": {
     "en": [
