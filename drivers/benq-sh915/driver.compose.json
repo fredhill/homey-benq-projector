@@ -6,7 +6,8 @@
   "capabilities": ["onoff", "volume_mute", "volume_set", "lamp_hours", "input_source", "power_state", "eco_blank", "picture_mode"],
   "images": {
     "small": "/drivers/benq-sh915/assets/images/small.png",
-    "large": "/drivers/benq-sh915/assets/images/large.png"
+    "large": "/drivers/benq-sh915/assets/images/large.png",
+    "xlarge": "/drivers/benq-sh915/assets/images/xlarge.png"
   },
   "pair": [
     {

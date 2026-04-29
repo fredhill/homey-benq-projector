@@ -1,29 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
+    <!-- Front-facing lens view — clearly distinct from the side-view app icon -->
     <mask id="dm">
       <!-- Outer lens housing ring -->
       <circle cx="50" cy="50" r="42" fill="white"/>
       <!-- Barrel hole — background shows through -->
       <circle cx="50" cy="50" r="30" fill="black"/>
-      <!-- Screw / mount notches on the housing ring -->
-      <rect x="46" y="6"  width="8" height="6" rx="2" fill="black"/>
-      <rect x="46" y="88" width="8" height="6" rx="2" fill="black"/>
-      <rect x="6"  y="46" width="6" height="8" rx="2" fill="black"/>
-      <rect x="88" y="46" width="6" height="8" rx="2" fill="black"/>
+      <!-- Mount notches at 12/3/6/9 o'clock -->
+      <rect x="46" y="6"  width="8" height="7" rx="2" fill="black"/>
+      <rect x="46" y="87" width="8" height="7" rx="2" fill="black"/>
+      <rect x="6"  y="46" width="7" height="8" rx="2" fill="black"/>
+      <rect x="87" y="46" width="7" height="8" rx="2" fill="black"/>
     </mask>
   </defs>
 
-  <!-- Lens housing ring (white, holes via mask) -->
+  <!-- Lens housing ring -->
   <rect x="0" y="0" width="100" height="100" fill="white" mask="url(#dm)"/>
 
-  <!-- Lens glass — inner circle with depth rings -->
-  <circle cx="50" cy="50" r="22" fill="white" opacity="0.15"/>
-  <circle cx="50" cy="50" r="16" fill="white" opacity="0.20"/>
-  <circle cx="50" cy="50" r="10" fill="white" opacity="0.30"/>
-  <circle cx="50" cy="50" r="5"  fill="white" opacity="0.80"/>
+  <!-- Lens depth rings (concentric, increasing opacity toward centre) -->
+  <circle cx="50" cy="50" r="23" fill="white" opacity="0.12"/>
+  <circle cx="50" cy="50" r="17" fill="white" opacity="0.18"/>
+  <circle cx="50" cy="50" r="11" fill="white" opacity="0.28"/>
+  <circle cx="50" cy="50" r="6"  fill="white" opacity="0.85"/>
 
   <!-- Lens glare -->
-  <circle cx="40" cy="40" r="4" fill="white" opacity="0.70"/>
-  <circle cx="37" cy="37" r="2" fill="white" opacity="0.90"/>
-
+  <circle cx="40" cy="40" r="4"  fill="white" opacity="0.70"/>
+  <circle cx="37" cy="37" r="2"  fill="white" opacity="0.90"/>
 </svg>

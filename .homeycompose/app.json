@@ -9,7 +9,7 @@
     "en": "BenQ Network Projector"
   },
   "description": {
-    "en": "Control your BenQ network projector from Homey over your local network — no extra hardware required."
+    "en": "Cinema night, automated."
   },
   "tags": {
     "en": [
@@ -31,7 +31,8 @@
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png"
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
   },
   "author": {
     "name": "Danny Dehaze",
