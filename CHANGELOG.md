@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.2 — 2026-04-28
+
+### Security
+- Input validation on IP address field — only plain IPv4/IPv6 addresses accepted (prevents SSRF via hostnames or URLs)
+- HTTP calls in device driver moved off the event loop via `run_in_executor` (prevents async blocking)
+- HTTP session configured with `max_redirects=0` and `max_retries=0` to prevent redirect-based attacks and duplicate commands
+- Response size cap (64 KB) before JSON parsing in both device and discovery code to prevent ReDoS
+- Stronger projector fingerprinting in discovery — requires both `nPowerStatus` and `nLampHour` fields
+- Fixed potential `NameError` in AMX discovery socket cleanup
+
+### Store
+- App tagline updated to "Cinema night, automated."
+- README updated with cleaner description
+- xlarge promotional images added for App Store listing
+
 ## 1.0.0 — 2026-04-21
 
 Initial release.

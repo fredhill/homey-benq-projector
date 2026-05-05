@@ -17,6 +17,9 @@ def _strip_trailing_commas(text):
     return re.sub(r',\s*([}\]])', r'\1', text)
 
 
+_RESPONSE_SIZE_LIMIT = 65536
+
+
 def _verify_benq(ip, timeout=2):
     """
     Return (True, status_dict) if device at `ip` is a BenQ projector,
@@ -25,8 +28,11 @@ def _verify_benq(ip, timeout=2):
     try:
         url = f"http://{ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:12,p:1049576"
         r = requests.post(url, timeout=timeout)
+        if len(r.text) > _RESPONSE_SIZE_LIMIT:
+            return False, None
         data = json.loads(_strip_trailing_commas(r.text))[0]
-        return ('nPowerStatus' in data), data
+        is_benq = 'nPowerStatus' in data and 'nLampHour' in data
+        return is_benq, data
     except Exception:
         return False, None
 
@@ -50,6 +56,7 @@ def _discover_amx(timeout=2):
     Fast (~2s) but only works if AMX is enabled on the projector.
     """
     found = []
+    sock = None
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

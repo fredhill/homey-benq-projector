@@ -1,4 +1,5 @@
 import asyncio
+import ipaddress
 import json
 import re
 import requests
@@ -19,15 +20,39 @@ DEFAULT_POLL_INTERVAL    = 120
 DEFAULT_LAMP_WARNING     = 3000
 DEFAULT_NETWORK_STANDBY  = True
 
+_RESPONSE_SIZE_LIMIT = 65536   # 64 KB — BenQ responses are typically < 1 KB
+
 
 # ──────────────────────────────────────────────
-# JSON helper
+# Helpers
 # ──────────────────────────────────────────────
 
 def _parse_benq_json(response):
     """BenQ returns trailing commas in JSON arrays — strip before parsing."""
+    if len(response.text) > _RESPONSE_SIZE_LIMIT:
+        raise ValueError("Response too large")
     text = re.sub(r',\s*([}\]])', r'\1', response.text)
     return json.loads(text)
+
+
+def _validate_ip(ip: str) -> str:
+    """
+    Validate that ip is a plain IPv4/IPv6 address.
+    Rejects hostnames, embedded credentials, ports, paths, and fragments.
+    Raises ValueError on anything invalid.
+    """
+    if not ip:
+        return ip   # empty = not yet configured, allowed
+    ipaddress.ip_address(ip)
+    return ip
+
+
+def _clamp(value, lo, hi, default):
+    """Return value clamped to [lo, hi], falling back to default on error."""
+    try:
+        return max(lo, min(hi, int(value)))
+    except (TypeError, ValueError):
+        return default
 
 
 # ──────────────────────────────────────────────
@@ -40,14 +65,26 @@ class BenQSH915Device(Device):
         await super().on_init()
         self.log("BenQ projector device initialized")
 
+        # Session with safe defaults — no redirects, no automatic retries
+        # (retries would send duplicate commands to the projector)
+        self._session = requests.Session()
+        self._session.max_redirects = 0
+        adapter = requests.adapters.HTTPAdapter(max_retries=0)
+        self._session.mount('http://', adapter)
+
         settings = self.get_settings()
-        self._ip                  = settings.get("ip_address", "")
-        self._poll_interval       = int(settings.get("poll_interval", DEFAULT_POLL_INTERVAL))
-        self._lamp_warning_hours  = int(settings.get("lamp_warning_hours", DEFAULT_LAMP_WARNING))
-        self._network_standby     = bool(settings.get("network_standby", DEFAULT_NETWORK_STANDBY))
-        self._fail_count          = 0
-        self._feature_profile     = {}
-        self._eco_blank           = False   # tracked locally (BenQ only has toggle)
+        try:
+            self._ip = _validate_ip(settings.get("ip_address", ""))
+        except ValueError:
+            self._ip = ""
+            self.error("Stored IP address is invalid — please update device settings")
+
+        self._poll_interval      = _clamp(settings.get("poll_interval"),      30,  600,  DEFAULT_POLL_INTERVAL)
+        self._lamp_warning_hours = _clamp(settings.get("lamp_warning_hours"), 100, 6000, DEFAULT_LAMP_WARNING)
+        self._network_standby    = bool(settings.get("network_standby", DEFAULT_NETWORK_STANDBY))
+        self._fail_count         = 0
+        self._feature_profile    = {}
+        self._eco_blank          = False   # tracked locally (BenQ only has toggle)
 
         self.register_capability_listener("onoff",        self._on_onoff)
         self.register_capability_listener("input_source", self._on_input_source)
@@ -69,14 +106,28 @@ class BenQSH915Device(Device):
         asyncio.ensure_future(self._detect_model())
 
     async def on_settings(self, old_settings, new_settings, changed_keys):
-        if "ip_address"          in changed_keys:
-            self._ip = new_settings["ip_address"]
-        if "poll_interval"       in changed_keys:
-            self._poll_interval = int(new_settings["poll_interval"])
-        if "lamp_warning_hours"  in changed_keys:
-            self._lamp_warning_hours = int(new_settings["lamp_warning_hours"])
-        if "network_standby"     in changed_keys:
+        if "ip_address" in changed_keys:
+            try:
+                self._ip = _validate_ip(new_settings["ip_address"])
+            except ValueError:
+                raise ValueError("Invalid IP address — enter a plain IPv4 or IPv6 address")
+        if "poll_interval" in changed_keys:
+            self._poll_interval = _clamp(new_settings["poll_interval"], 30, 600, DEFAULT_POLL_INTERVAL)
+        if "lamp_warning_hours" in changed_keys:
+            self._lamp_warning_hours = _clamp(new_settings["lamp_warning_hours"], 100, 6000, DEFAULT_LAMP_WARNING)
+        if "network_standby" in changed_keys:
             self._network_standby = bool(new_settings["network_standby"])
+
+    # ------------------------------------------------------------------
+    # HTTP helper — runs blocking requests in a thread so the async
+    # event loop is never blocked, even during long timeouts
+    # ------------------------------------------------------------------
+
+    async def _post(self, url, timeout=5):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, lambda: self._session.post(url, timeout=timeout, allow_redirects=False)
+        )
 
     # ------------------------------------------------------------------
     # Capability management
@@ -99,7 +150,7 @@ class BenQSH915Device(Device):
         """Query projector identity and probe supported features. Runs once at startup."""
         try:
             url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:12,p:1049576"
-            response = requests.post(url, timeout=5)
+            response = await self._post(url)
             status = _parse_benq_json(response)[0]
 
             model = status.get('acProjectorName', 'Unknown')
@@ -111,7 +162,7 @@ class BenQSH915Device(Device):
 
         except Exception as e:
             if "header" not in str(e).lower():
-                self.log(f"Model detection skipped ({e}) — using defaults")
+                self.log(f"Model detection skipped — using defaults")
 
     async def _probe_features(self):
         """
@@ -132,7 +183,7 @@ class BenQSH915Device(Device):
         # Volume range query — c:9 returns {"min": 0, "max": 10}
         try:
             url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:9,p:917516"
-            r = requests.post(url, timeout=3)
+            r = await self._post(url, timeout=3)
             data = _parse_benq_json(r)[0]
             if 'max' in data:
                 profile['volume']     = True
@@ -154,7 +205,7 @@ class BenQSH915Device(Device):
         try:
             return await coro
         except Exception as e:
-            self.error(f"Feature '{feature_name}' failed: {e}")
+            self.error(f"Feature '{feature_name}' failed")
             return None
 
     # ------------------------------------------------------------------
@@ -165,7 +216,7 @@ class BenQSH915Device(Device):
         """Bulk status poll — one HTTP call covers power, lamp hours, source."""
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:12,p:1049576"
         try:
-            response = requests.post(url, timeout=5)
+            response = await self._post(url)
             data = _parse_benq_json(response)[0]
             self._fail_count = 0
             await self._apply_bulk_status(data)
@@ -189,7 +240,7 @@ class BenQSH915Device(Device):
         except Exception as e:
             if "header" in str(e).lower():
                 return  # Expected BenQ malformed header — not a real error
-            await self._on_poll_failure(str(e))
+            await self._on_poll_failure("unexpected error")
 
     async def _apply_bulk_status(self, data):
         power = data.get("nPowerStatus")
@@ -238,7 +289,7 @@ class BenQSH915Device(Device):
     async def _poll_volume(self):
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:6,p:917516"
         try:
-            response = requests.post(url, timeout=3)
+            response = await self._post(url, timeout=3)
             level = _parse_benq_json(response)[0]["value"]   # 0-10
             await self.set_capability_value("volume_set", level / 10)
         except Exception:
@@ -264,7 +315,7 @@ class BenQSH915Device(Device):
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:851977,v:9"
         try:
             self.log("Sending power ON command")
-            requests.post(url, timeout=5)
+            await self._post(url)
             await self.set_capability_value("onoff", True)
             await self.set_capability_value("power_state", "warming")
             await self.set_available()
@@ -279,7 +330,7 @@ class BenQSH915Device(Device):
                 await self.set_available()
                 self.log("Power ON sent (header error ignored)")
             else:
-                self.error(f"Power ON failed: {e}")
+                self.error("Power ON failed")
                 raise
 
     async def _turn_off(self):
@@ -294,7 +345,7 @@ class BenQSH915Device(Device):
         try:
             self.log("Sending power OFF sequence (5 steps)")
             for i, step in enumerate(steps, 1):
-                requests.post(base + step, timeout=5)
+                await self._post(base + step)
                 self.log(f"Step {i}/5 sent")
                 if i < len(steps):
                     await asyncio.sleep(0.5)
@@ -307,7 +358,7 @@ class BenQSH915Device(Device):
                 await self.set_capability_value("power_state", "cooling")
                 self.log("Power OFF sent (header error ignored)")
             else:
-                self.error(f"Power OFF failed: {e}")
+                self.error("Power OFF failed")
                 raise
 
     # ------------------------------------------------------------------
@@ -319,11 +370,11 @@ class BenQSH915Device(Device):
         source_id = int(value)
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:917504,v:{source_id}"
         try:
-            requests.post(url, timeout=5)
+            await self._post(url)
             self.log(f"Input switched to source {source_id}")
         except Exception as e:
             if "header" not in str(e).lower():
-                self.error(f"Input switch failed: {e}")
+                self.error("Input switch failed")
                 raise
 
     # ------------------------------------------------------------------
@@ -335,20 +386,20 @@ class BenQSH915Device(Device):
         level = round(value * 10)
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:917516,v:{level}"
         try:
-            requests.post(url, timeout=5)
+            await self._post(url)
             self.log(f"Volume set to {level}/10")
         except Exception as e:
             if "header" not in str(e).lower():
-                self.error(f"Volume set failed: {e}")
+                self.error("Volume set failed")
 
     async def _on_volume_mute(self, value, opts=None):
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:851980,v:12"
         try:
-            requests.post(url, timeout=5)
+            await self._post(url)
             self.log(f"Mute {'on' if value else 'off'} (toggle sent)")
         except Exception as e:
             if "header" not in str(e).lower():
-                self.error(f"Mute toggle failed: {e}")
+                self.error("Mute toggle failed")
 
     # ------------------------------------------------------------------
     # ECO Blank
@@ -363,7 +414,7 @@ class BenQSH915Device(Device):
             return  # Already in the desired state, nothing to do
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:851974,v:6"
         try:
-            requests.post(url, timeout=5)
+            await self._post(url)
             self._eco_blank = value
             self.log(f"ECO Blank {'on' if value else 'off'}")
         except Exception as e:
@@ -371,7 +422,7 @@ class BenQSH915Device(Device):
                 self._eco_blank = value
                 self.log(f"ECO Blank {'on' if value else 'off'} (header error ignored)")
             else:
-                self.error(f"ECO Blank failed: {e}")
+                self.error("ECO Blank failed")
                 raise
 
     # ------------------------------------------------------------------
@@ -383,11 +434,11 @@ class BenQSH915Device(Device):
         mode_id = int(value)
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:983040,v:{mode_id}"
         try:
-            requests.post(url, timeout=5)
+            await self._post(url)
             self.log(f"Picture mode set to {mode_id}")
         except Exception as e:
             if "header" not in str(e).lower():
-                self.error(f"Picture mode failed: {e}")
+                self.error("Picture mode failed")
                 raise
 
 
