@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4 — 2026-05-18
+
+### Fixed
+- Fixed crash "Task exception was never retrieved" caused by unhandled exception in background model-detection task
+
 ## 1.0.2 — 2026-04-28
 
 ### Security

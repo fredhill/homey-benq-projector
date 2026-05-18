@@ -103,7 +103,8 @@ class BenQSH915Device(Device):
                  f"Network standby: {self._network_standby}")
 
         # Detect model in background — non-blocking, won't affect startup
-        asyncio.ensure_future(self._detect_model())
+        task = asyncio.ensure_future(self._detect_model())
+        task.add_done_callback(self._on_background_task_done)
 
     async def on_settings(self, old_settings, new_settings, changed_keys):
         if "ip_address" in changed_keys:
@@ -146,6 +147,13 @@ class BenQSH915Device(Device):
     # Model detection & feature probing
     # ------------------------------------------------------------------
 
+    def _on_background_task_done(self, task):
+        """Retrieve background task result so Python never logs 'Task exception was never retrieved'."""
+        try:
+            task.result()
+        except Exception:
+            pass   # already logged inside the task itself
+
     async def _detect_model(self):
         """Query projector identity and probe supported features. Runs once at startup."""
         try:
@@ -160,9 +168,8 @@ class BenQSH915Device(Device):
             self._feature_profile = await self._probe_features()
             self.log(f"Feature profile: {self._feature_profile}")
 
-        except Exception as e:
-            if "header" not in str(e).lower():
-                self.log(f"Model detection skipped — using defaults")
+        except Exception:
+            self.log("Model detection skipped — using defaults")
 
     async def _probe_features(self):
         """
