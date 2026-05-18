@@ -1,9 +1,10 @@
 # Changelog
 
-## 1.0.4 — 2026-05-18
+## 1.0.5 — 2026-05-18
 
 ### Fixed
-- Fixed crash "Task exception was never retrieved" caused by unhandled exception in background model-detection task
+- Fixed crash "Task exception was never retrieved" — exceptions raised by Homey's set_unavailable inside the poll task now can't escape the interval handler
+- Fixed same class of crash in background model-detection task (ensure_future)
 
 ## 1.0.2 — 2026-04-28
 

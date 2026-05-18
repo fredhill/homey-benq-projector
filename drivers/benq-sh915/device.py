@@ -221,6 +221,12 @@ class BenQSH915Device(Device):
 
     async def _poll(self):
         """Bulk status poll — one HTTP call covers power, lamp hours, source."""
+        try:
+            await self._poll_inner()
+        except Exception:
+            pass   # Safety net — set_interval tasks must never raise
+
+    async def _poll_inner(self):
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:12,p:1049576"
         try:
             response = await self._post(url)
