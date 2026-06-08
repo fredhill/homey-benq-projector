@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Picture frame / landscape -->
+  <rect x="14" y="22" width="72" height="56" rx="4" fill="none" stroke="white" stroke-width="6"/>
+  <!-- Sun -->
+  <circle cx="34" cy="42" r="6" fill="white"/>
+  <!-- Mountain peaks -->
+  <path d="M20 70 L 40 50 L 56 62 L 70 46 L 86 70 Z" fill="white"/>
+</svg>

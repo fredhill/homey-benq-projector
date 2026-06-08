@@ -4,6 +4,7 @@
   "getable": true,
   "setable": true,
   "uiComponent": "picker",
+  "icon": "/assets/picture_mode.svg",
   "values": [
     { "id": "0", "title": { "en": "Dynamic" } },
     { "id": "1", "title": { "en": "Presentation" } },

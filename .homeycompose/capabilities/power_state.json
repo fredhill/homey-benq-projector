@@ -4,6 +4,7 @@
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
+  "icon": "/assets/power_state.svg",
   "values": [
     { "id": "on",      "title": { "en": "On" } },
     { "id": "warming", "title": { "en": "Warming Up" } },

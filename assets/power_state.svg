@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Classic power symbol — circle with vertical bar through top -->
+  <path d="M50 18 V 48" stroke="white" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <path d="M30 32 A 26 26 0 1 0 70 32" stroke="white" stroke-width="9" stroke-linecap="round" fill="none"/>
+</svg>

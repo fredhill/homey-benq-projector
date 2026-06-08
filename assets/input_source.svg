@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- HDMI-style connector silhouette -->
+  <path d="M22 38 L 78 38 L 72 58 L 64 70 L 36 70 L 28 58 Z" fill="white"/>
+  <!-- Pins -->
+  <rect x="32" y="44" width="4" height="8" fill="#000" opacity="0.35"/>
+  <rect x="40" y="44" width="4" height="8" fill="#000" opacity="0.35"/>
+  <rect x="48" y="44" width="4" height="8" fill="#000" opacity="0.35"/>
+  <rect x="56" y="44" width="4" height="8" fill="#000" opacity="0.35"/>
+  <rect x="64" y="44" width="4" height="8" fill="#000" opacity="0.35"/>
+  <!-- Cable stub -->
+  <rect x="44" y="28" width="12" height="12" fill="white"/>
+  <rect x="46" y="18" width="8" height="12" fill="white"/>
+</svg>

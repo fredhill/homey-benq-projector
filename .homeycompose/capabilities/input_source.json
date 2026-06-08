@@ -4,6 +4,7 @@
   "getable": true,
   "setable": true,
   "uiComponent": "picker",
+  "icon": "/assets/input_source.svg",
   "values": [
     { "id": "5",  "title": { "en": "HDMI 1" } },
     { "id": "22", "title": { "en": "HDMI 2" } },
