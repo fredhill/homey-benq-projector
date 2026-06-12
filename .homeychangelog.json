@@ -13,5 +13,8 @@
   },
   "1.0.7": {
     "en": "Added icons for Power State, Input Source, and Picture Mode capabilities. Input Source is now the default view on mobile."
+  },
+  "1.0.8": {
+    "en": "Added flow cards: set input source, picture mode, and ECO Blank from flows, plus triggers and conditions for input, power state, picture mode, and lamp warnings. Also fixed a rare crash in availability reporting."
   }
 }
