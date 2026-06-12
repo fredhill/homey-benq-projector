@@ -1,0 +1,16 @@
+{
+  "id": "lamp_warning",
+  "title": { "en": "The lamp warning threshold was reached" },
+  "hint": { "en": "Triggers once when lamp hours cross the warning threshold set in device settings." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" }
+  ],
+  "tokens": [
+    {
+      "name": "lamp_hours",
+      "type": "number",
+      "title": { "en": "Lamp Hours" },
+      "example": 3000
+    }
+  ]
+}

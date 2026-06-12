@@ -1,0 +1,16 @@
+{
+  "id": "picture_mode_changed",
+  "title": { "en": "The picture mode changed" },
+  "hint": { "en": "Triggers when the projector switches to a different picture mode." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" }
+  ],
+  "tokens": [
+    {
+      "name": "mode",
+      "type": "string",
+      "title": { "en": "Picture Mode" },
+      "example": { "en": "Cinema" }
+    }
+  ]
+}

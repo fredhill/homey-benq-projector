@@ -16,6 +16,19 @@ POWER_COOLING = 8
 
 LAMP_RATED_HOURS = {0: 3500, 1: 5000, 2: 5000, 3: 6000, 4: 5000}
 
+# Human-readable names for flow trigger tokens
+INPUT_NAMES = {
+    "5": "HDMI 1", "22": "HDMI 2", "0": "Computer 1", "13": "Computer 2",
+    "1": "Video", "2": "S-Video", "17": "USB Reader", "18": "Network Display",
+}
+PICTURE_NAMES = {
+    "0": "Dynamic", "1": "Presentation", "2": "sRGB", "3": "Cinema",
+    "4": "3D", "5": "User 1", "6": "User 2",
+}
+POWER_NAMES = {
+    "on": "On", "warming": "Warming Up", "cooling": "Cooling Down", "standby": "Standby",
+}
+
 DEFAULT_POLL_INTERVAL    = 120
 DEFAULT_LAMP_WARNING     = 3000
 DEFAULT_NETWORK_STANDBY  = True
@@ -85,6 +98,19 @@ class BenQSH915Device(Device):
         self._fail_count         = 0
         self._feature_profile    = {}
         self._eco_blank          = False   # tracked locally (BenQ only has toggle)
+        self._marked_available   = None    # last availability we reported (None = unknown)
+
+        # Flow trigger state — last-known values so we only fire on change
+        self._prev_power         = None
+        self._prev_input         = None
+        self._prev_picture       = None
+        self._lamp_warning_fired = False
+
+        # Device flow trigger cards
+        self._trig_power   = self.homey.flow.get_device_trigger_card("power_state_changed")
+        self._trig_input   = self.homey.flow.get_device_trigger_card("input_source_changed")
+        self._trig_picture = self.homey.flow.get_device_trigger_card("picture_mode_changed")
+        self._trig_lamp    = self.homey.flow.get_device_trigger_card("lamp_warning")
 
         self.register_capability_listener("onoff",        self._on_onoff)
         self.register_capability_listener("input_source", self._on_input_source)
@@ -216,6 +242,31 @@ class BenQSH915Device(Device):
             return None
 
     # ------------------------------------------------------------------
+    # Availability — guarded and change-only.
+    # The SDK's set_unavailable can raise from an internal background task
+    # (seen on Homey v13.3.0-rc firmware), so never let it propagate and
+    # never call it more often than needed.
+    # ------------------------------------------------------------------
+
+    async def _mark_available(self):
+        if self._marked_available is True:
+            return
+        try:
+            await self.set_available()
+            self._marked_available = True
+        except Exception:
+            self.log("set_available failed — will retry on next poll")
+
+    async def _mark_unavailable(self, message):
+        if self._marked_available is False:
+            return
+        try:
+            await self.set_unavailable(message)
+            self._marked_available = False
+        except Exception:
+            self.log("set_unavailable failed — will retry on next poll")
+
+    # ------------------------------------------------------------------
     # Polling
     # ------------------------------------------------------------------
 
@@ -233,7 +284,7 @@ class BenQSH915Device(Device):
             data = _parse_benq_json(response)[0]
             self._fail_count = 0
             await self._apply_bulk_status(data)
-            await self.set_available()
+            await self._mark_available()
 
         except requests.exceptions.ConnectionError:
             if self._network_standby:
@@ -261,18 +312,18 @@ class BenQSH915Device(Device):
         # Power state
         if power == POWER_ON:
             await self.set_capability_value("onoff", True)
-            await self.set_capability_value("power_state", "on")
+            await self._set_power_state("on")
         elif power == POWER_WARMING:
             await self.set_capability_value("onoff", True)
-            await self.set_capability_value("power_state", "warming")
+            await self._set_power_state("warming")
             self.homey.set_timeout(self._poll, 30 * 1000)   # re-poll in 30s
         elif power == POWER_COOLING:
             await self.set_capability_value("onoff", False)
-            await self.set_capability_value("power_state", "cooling")
+            await self._set_power_state("cooling")
             self.homey.set_timeout(self._poll, 30 * 1000)   # re-poll in 30s
         else:
             await self.set_capability_value("onoff", False)
-            await self.set_capability_value("power_state", "standby")
+            await self._set_power_state("standby")
 
         # Lamp hours — readable in all states including standby
         lamp_hours = data.get("nLampHour")
@@ -286,16 +337,17 @@ class BenQSH915Device(Device):
                 self.error(f"URGENT: lamp at {lamp_hours}h — replace soon!")
             elif lamp_hours >= self._lamp_warning_hours:
                 self.log(f"WARNING: lamp at {lamp_hours}h — past warning threshold of {self._lamp_warning_hours}h")
+            await self._check_lamp_warning(lamp_hours)
 
         # Input source, picture mode, and volume — only meaningful when fully on
         if power == POWER_ON:
             source_id = data.get("nPWSourceID")
             if source_id is not None:
-                await self.set_capability_value("input_source", str(source_id))
+                await self._set_input_value(str(source_id))
 
             picture_mode = data.get("nPictureMode")
             if picture_mode is not None:
-                await self.set_capability_value("picture_mode", str(picture_mode))
+                await self._set_picture_value(str(picture_mode))
 
             await self._poll_volume()
 
@@ -312,7 +364,50 @@ class BenQSH915Device(Device):
         self._fail_count += 1
         self.error(f"Poll failed ({self._fail_count}): {reason}")
         if self._fail_count >= 3:
-            await self.set_unavailable("Projector unreachable")
+            await self._mark_unavailable("Projector unreachable")
+
+    # ------------------------------------------------------------------
+    # State setters that also fire flow triggers on change
+    # ------------------------------------------------------------------
+
+    async def _set_power_state(self, new):
+        await self.set_capability_value("power_state", new)
+        if self._prev_power is not None and self._prev_power != new:
+            try:
+                await self._trig_power.trigger(self, {"state": POWER_NAMES.get(new, new)})
+            except Exception:
+                pass
+        self._prev_power = new
+
+    async def _set_input_value(self, new):
+        await self.set_capability_value("input_source", new)
+        if self._prev_input is not None and self._prev_input != new:
+            try:
+                await self._trig_input.trigger(self, {"source": INPUT_NAMES.get(new, new)})
+            except Exception:
+                pass
+        self._prev_input = new
+
+    async def _set_picture_value(self, new):
+        await self.set_capability_value("picture_mode", new)
+        if self._prev_picture is not None and self._prev_picture != new:
+            try:
+                await self._trig_picture.trigger(self, {"mode": PICTURE_NAMES.get(new, new)})
+            except Exception:
+                pass
+        self._prev_picture = new
+
+    async def _check_lamp_warning(self, lamp_hours):
+        """Fire the lamp-warning trigger once when crossing the threshold."""
+        if lamp_hours >= self._lamp_warning_hours:
+            if not self._lamp_warning_fired:
+                self._lamp_warning_fired = True
+                try:
+                    await self._trig_lamp.trigger(self, {"lamp_hours": lamp_hours})
+                except Exception:
+                    pass
+        else:
+            self._lamp_warning_fired = False   # reset if lamp counter drops (e.g. lamp reset)
 
     # ------------------------------------------------------------------
     # Power
@@ -330,8 +425,8 @@ class BenQSH915Device(Device):
             self.log("Sending power ON command")
             await self._post(url)
             await self.set_capability_value("onoff", True)
-            await self.set_capability_value("power_state", "warming")
-            await self.set_available()
+            await self._set_power_state("warming")
+            await self._mark_available()
             self.log("Power ON sent — projector warming up")
         except requests.exceptions.Timeout:
             self.error("Power ON timed out")
@@ -339,8 +434,8 @@ class BenQSH915Device(Device):
         except Exception as e:
             if "header" in str(e).lower():
                 await self.set_capability_value("onoff", True)
-                await self.set_capability_value("power_state", "warming")
-                await self.set_available()
+                await self._set_power_state("warming")
+                await self._mark_available()
                 self.log("Power ON sent (header error ignored)")
             else:
                 self.error("Power ON failed")
@@ -363,12 +458,12 @@ class BenQSH915Device(Device):
                 if i < len(steps):
                     await asyncio.sleep(0.5)
             await self.set_capability_value("onoff", False)
-            await self.set_capability_value("power_state", "cooling")
+            await self._set_power_state("cooling")
             self.log("Power OFF sequence complete — projector cooling")
         except Exception as e:
             if "header" in str(e).lower():
                 await self.set_capability_value("onoff", False)
-                await self.set_capability_value("power_state", "cooling")
+                await self._set_power_state("cooling")
                 self.log("Power OFF sent (header error ignored)")
             else:
                 self.error("Power OFF failed")
@@ -453,6 +548,23 @@ class BenQSH915Device(Device):
             if "header" not in str(e).lower():
                 self.error("Picture mode failed")
                 raise
+
+    # ------------------------------------------------------------------
+    # Flow action entry points — called from app.py run listeners.
+    # Each sends the command and updates the capability so the UI reflects it.
+    # ------------------------------------------------------------------
+
+    async def flow_set_input_source(self, source_id):
+        await self._on_input_source(source_id)
+        await self._set_input_value(str(source_id))
+
+    async def flow_set_picture_mode(self, mode_id):
+        await self._on_picture_mode(mode_id)
+        await self._set_picture_value(str(mode_id))
+
+    async def flow_set_eco_blank(self, on):
+        await self._on_eco_blank(on)
+        await self.set_capability_value("eco_blank", on)
 
 
 homey_export = BenQSH915Device

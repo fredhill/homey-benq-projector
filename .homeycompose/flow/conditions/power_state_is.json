@@ -1,0 +1,19 @@
+{
+  "id": "power_state_is",
+  "title": { "en": "Power state !{{is|is not}}" },
+  "titleFormatted": { "en": "Power state !{{is|is not}} [[state]]" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" },
+    {
+      "type": "dropdown",
+      "name": "state",
+      "title": { "en": "Power State" },
+      "values": [
+        { "id": "on",      "title": { "en": "On" } },
+        { "id": "warming", "title": { "en": "Warming Up" } },
+        { "id": "cooling", "title": { "en": "Cooling Down" } },
+        { "id": "standby", "title": { "en": "Standby" } }
+      ]
+    }
+  ]
+}

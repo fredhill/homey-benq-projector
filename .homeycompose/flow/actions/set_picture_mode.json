@@ -1,0 +1,23 @@
+{
+  "id": "set_picture_mode",
+  "title": { "en": "Set the picture mode" },
+  "titleFormatted": { "en": "Set picture mode to [[mode]]" },
+  "hint": { "en": "Switch the projector to a specific picture mode." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": { "en": "Picture Mode" },
+      "values": [
+        { "id": "0", "title": { "en": "Dynamic" } },
+        { "id": "1", "title": { "en": "Presentation" } },
+        { "id": "2", "title": { "en": "sRGB" } },
+        { "id": "3", "title": { "en": "Cinema" } },
+        { "id": "4", "title": { "en": "3D" } },
+        { "id": "5", "title": { "en": "User 1" } },
+        { "id": "6", "title": { "en": "User 2" } }
+      ]
+    }
+  ]
+}

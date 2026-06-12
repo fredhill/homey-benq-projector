@@ -1,0 +1,16 @@
+{
+  "id": "input_source_changed",
+  "title": { "en": "The input source changed" },
+  "hint": { "en": "Triggers when the projector switches to a different input." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" }
+  ],
+  "tokens": [
+    {
+      "name": "source",
+      "type": "string",
+      "title": { "en": "Source" },
+      "example": { "en": "HDMI 1" }
+    }
+  ]
+}

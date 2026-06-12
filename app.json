@@ -45,6 +45,499 @@
   "contributing": {
     "donate": {}
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "input_source_changed",
+        "title": {
+          "en": "The input source changed"
+        },
+        "hint": {
+          "en": "Triggers when the projector switches to a different input."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "source",
+            "type": "string",
+            "title": {
+              "en": "Source"
+            },
+            "example": {
+              "en": "HDMI 1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "lamp_warning",
+        "title": {
+          "en": "The lamp warning threshold was reached"
+        },
+        "hint": {
+          "en": "Triggers once when lamp hours cross the warning threshold set in device settings."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "lamp_hours",
+            "type": "number",
+            "title": {
+              "en": "Lamp Hours"
+            },
+            "example": 3000
+          }
+        ]
+      },
+      {
+        "id": "picture_mode_changed",
+        "title": {
+          "en": "The picture mode changed"
+        },
+        "hint": {
+          "en": "Triggers when the projector switches to a different picture mode."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Picture Mode"
+            },
+            "example": {
+              "en": "Cinema"
+            }
+          }
+        ]
+      },
+      {
+        "id": "power_state_changed",
+        "title": {
+          "en": "The power state changed"
+        },
+        "hint": {
+          "en": "Triggers on On, Warming Up, Cooling Down, or Standby transitions."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "state",
+            "type": "string",
+            "title": {
+              "en": "Power State"
+            },
+            "example": {
+              "en": "On"
+            }
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "input_source_is",
+        "title": {
+          "en": "Input source !{{is|is not}}"
+        },
+        "titleFormatted": {
+          "en": "Input source !{{is|is not}} [[source]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "source",
+            "title": {
+              "en": "Source"
+            },
+            "values": [
+              {
+                "id": "5",
+                "title": {
+                  "en": "HDMI 1"
+                }
+              },
+              {
+                "id": "22",
+                "title": {
+                  "en": "HDMI 2"
+                }
+              },
+              {
+                "id": "0",
+                "title": {
+                  "en": "Computer 1"
+                }
+              },
+              {
+                "id": "13",
+                "title": {
+                  "en": "Computer 2"
+                }
+              },
+              {
+                "id": "1",
+                "title": {
+                  "en": "Video"
+                }
+              },
+              {
+                "id": "2",
+                "title": {
+                  "en": "S-Video"
+                }
+              },
+              {
+                "id": "17",
+                "title": {
+                  "en": "USB Reader"
+                }
+              },
+              {
+                "id": "18",
+                "title": {
+                  "en": "Network Display"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "picture_mode_is",
+        "title": {
+          "en": "Picture mode !{{is|is not}}"
+        },
+        "titleFormatted": {
+          "en": "Picture mode !{{is|is not}} [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Picture Mode"
+            },
+            "values": [
+              {
+                "id": "0",
+                "title": {
+                  "en": "Dynamic"
+                }
+              },
+              {
+                "id": "1",
+                "title": {
+                  "en": "Presentation"
+                }
+              },
+              {
+                "id": "2",
+                "title": {
+                  "en": "sRGB"
+                }
+              },
+              {
+                "id": "3",
+                "title": {
+                  "en": "Cinema"
+                }
+              },
+              {
+                "id": "4",
+                "title": {
+                  "en": "3D"
+                }
+              },
+              {
+                "id": "5",
+                "title": {
+                  "en": "User 1"
+                }
+              },
+              {
+                "id": "6",
+                "title": {
+                  "en": "User 2"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "power_state_is",
+        "title": {
+          "en": "Power state !{{is|is not}}"
+        },
+        "titleFormatted": {
+          "en": "Power state !{{is|is not}} [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "title": {
+              "en": "Power State"
+            },
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "warming",
+                "title": {
+                  "en": "Warming Up"
+                }
+              },
+              {
+                "id": "cooling",
+                "title": {
+                  "en": "Cooling Down"
+                }
+              },
+              {
+                "id": "standby",
+                "title": {
+                  "en": "Standby"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_eco_blank",
+        "title": {
+          "en": "Turn ECO Blank on or off"
+        },
+        "titleFormatted": {
+          "en": "Turn ECO Blank [[state]]"
+        },
+        "hint": {
+          "en": "Blank the screen and dim the lamp, or restore the picture."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "title": {
+              "en": "State"
+            },
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_input_source",
+        "title": {
+          "en": "Set the input source"
+        },
+        "titleFormatted": {
+          "en": "Set input source to [[source]]"
+        },
+        "hint": {
+          "en": "Switch the projector to a specific input."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "source",
+            "title": {
+              "en": "Source"
+            },
+            "values": [
+              {
+                "id": "5",
+                "title": {
+                  "en": "HDMI 1"
+                }
+              },
+              {
+                "id": "22",
+                "title": {
+                  "en": "HDMI 2"
+                }
+              },
+              {
+                "id": "0",
+                "title": {
+                  "en": "Computer 1"
+                }
+              },
+              {
+                "id": "13",
+                "title": {
+                  "en": "Computer 2"
+                }
+              },
+              {
+                "id": "1",
+                "title": {
+                  "en": "Video"
+                }
+              },
+              {
+                "id": "2",
+                "title": {
+                  "en": "S-Video"
+                }
+              },
+              {
+                "id": "17",
+                "title": {
+                  "en": "USB Reader"
+                }
+              },
+              {
+                "id": "18",
+                "title": {
+                  "en": "Network Display"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_picture_mode",
+        "title": {
+          "en": "Set the picture mode"
+        },
+        "titleFormatted": {
+          "en": "Set picture mode to [[mode]]"
+        },
+        "hint": {
+          "en": "Switch the projector to a specific picture mode."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=benq-sh915"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Picture Mode"
+            },
+            "values": [
+              {
+                "id": "0",
+                "title": {
+                  "en": "Dynamic"
+                }
+              },
+              {
+                "id": "1",
+                "title": {
+                  "en": "Presentation"
+                }
+              },
+              {
+                "id": "2",
+                "title": {
+                  "en": "sRGB"
+                }
+              },
+              {
+                "id": "3",
+                "title": {
+                  "en": "Cinema"
+                }
+              },
+              {
+                "id": "4",
+                "title": {
+                  "en": "3D"
+                }
+              },
+              {
+                "id": "5",
+                "title": {
+                  "en": "User 1"
+                }
+              },
+              {
+                "id": "6",
+                "title": {
+                  "en": "User 2"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {

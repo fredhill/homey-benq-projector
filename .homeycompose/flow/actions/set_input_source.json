@@ -1,0 +1,24 @@
+{
+  "id": "set_input_source",
+  "title": { "en": "Set the input source" },
+  "titleFormatted": { "en": "Set input source to [[source]]" },
+  "hint": { "en": "Switch the projector to a specific input." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" },
+    {
+      "type": "dropdown",
+      "name": "source",
+      "title": { "en": "Source" },
+      "values": [
+        { "id": "5",  "title": { "en": "HDMI 1" } },
+        { "id": "22", "title": { "en": "HDMI 2" } },
+        { "id": "0",  "title": { "en": "Computer 1" } },
+        { "id": "13", "title": { "en": "Computer 2" } },
+        { "id": "1",  "title": { "en": "Video" } },
+        { "id": "2",  "title": { "en": "S-Video" } },
+        { "id": "17", "title": { "en": "USB Reader" } },
+        { "id": "18", "title": { "en": "Network Display" } }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.8 — 2026-06-12
+
+### Added
+- Flow action cards: Set input source, Set picture mode, Turn ECO Blank on/off
+- Flow trigger cards: Input source changed, Power state changed, Picture mode changed, Lamp warning threshold reached (with tags)
+- Flow condition cards: Input source is, Power state is, Picture mode is
+
+### Fixed
+- Hardened availability reporting against an SDK-internal crash seen on Homey v13.3.0-rc firmware — set_available/set_unavailable are now guarded and only called on state transitions
+
 ## 1.0.5 — 2026-05-18
 
 ### Fixed

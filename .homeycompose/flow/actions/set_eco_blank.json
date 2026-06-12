@@ -1,0 +1,18 @@
+{
+  "id": "set_eco_blank",
+  "title": { "en": "Turn ECO Blank on or off" },
+  "titleFormatted": { "en": "Turn ECO Blank [[state]]" },
+  "hint": { "en": "Blank the screen and dim the lamp, or restore the picture." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" },
+    {
+      "type": "dropdown",
+      "name": "state",
+      "title": { "en": "State" },
+      "values": [
+        { "id": "on",  "title": { "en": "On" } },
+        { "id": "off", "title": { "en": "Off" } }
+      ]
+    }
+  ]
+}

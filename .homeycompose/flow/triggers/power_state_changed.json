@@ -1,0 +1,16 @@
+{
+  "id": "power_state_changed",
+  "title": { "en": "The power state changed" },
+  "hint": { "en": "Triggers on On, Warming Up, Cooling Down, or Standby transitions." },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=benq-sh915" }
+  ],
+  "tokens": [
+    {
+      "name": "state",
+      "type": "string",
+      "title": { "en": "Power State" },
+      "example": { "en": "On" }
+    }
+  ]
+}
