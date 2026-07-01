@@ -16,5 +16,8 @@
   },
   "1.0.8": {
     "en": "Added flow cards: set input source, picture mode, and ECO Blank from flows, plus triggers and conditions for input, power state, picture mode, and lamp warnings. Also fixed a rare crash in availability reporting."
+  },
+  "1.0.9": {
+    "en": "Fixed the projector randomly showing as unavailable every few minutes (stale network connection), plus a rare background crash."
   }
 }
