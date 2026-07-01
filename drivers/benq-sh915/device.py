@@ -84,6 +84,12 @@ class BenQSH915Device(Device):
         self._session.max_redirects = 0
         adapter = requests.adapters.HTTPAdapter(max_retries=0)
         self._session.mount('http://', adapter)
+        # The projector's embedded HTTP server drops idle keep-alive
+        # connections, so a pooled socket goes stale between polls and the
+        # next request fails — which is what made the device flap to
+        # "unavailable" every few minutes. Force a fresh connection per
+        # request with Connection: close.
+        self._session.headers.update({"Connection": "close"})
 
         settings = self.get_settings()
         try:

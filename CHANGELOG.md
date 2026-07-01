@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9 — 2026-07-01
+
+### Fixed
+- Fixed the projector randomly dropping to "unavailable" every few minutes. The HTTP session kept a keep-alive connection open between status polls, but the projector's embedded server drops idle connections — so the reused socket went stale and polls failed. Each request now uses a fresh connection (Connection: close).
+- Properly fixed the recurring "Task exception was never retrieved" crash. The SDK runs set_available/set_unavailable as detached background tasks, so their failures cannot be caught with try/except. Added an event-loop exception handler that swallows these specific SDK-internal availability errors while still reporting all other errors normally.
+
 ## 1.0.8 — 2026-06-12
 
 ### Added
