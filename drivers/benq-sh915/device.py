@@ -2,6 +2,7 @@ import asyncio
 import ipaddress
 import json
 import re
+import time
 import requests
 from homey.device import Device
 
@@ -32,6 +33,12 @@ POWER_NAMES = {
 DEFAULT_POLL_INTERVAL    = 120
 DEFAULT_LAMP_WARNING     = 3000
 DEFAULT_NETWORK_STANDBY  = True
+
+# After the app/server restarts, Homey re-delivers the last stored capability
+# values to their listeners to "restore" device state. For a projector that
+# means an unwanted physical power-on. We ignore power actuation for a short
+# window after init; polling still reflects the projector's real state.
+_STARTUP_GUARD_SECONDS = 15
 
 _RESPONSE_SIZE_LIMIT = 65536   # 64 KB — BenQ responses are typically < 1 KB
 
@@ -106,6 +113,10 @@ class BenQSH915Device(Device):
         self._eco_blank          = False   # tracked locally (BenQ only has toggle)
         self._marked_available   = None    # last availability we reported (None = unknown)
 
+        # Ignore power actuation during Homey's post-restart state-restore.
+        # Set before any capability listener is registered below.
+        self._startup_guard_until = time.monotonic() + _STARTUP_GUARD_SECONDS
+
         # Flow trigger state — last-known values so we only fire on change
         self._prev_power         = None
         self._prev_input         = None
@@ -130,6 +141,10 @@ class BenQSH915Device(Device):
         self.register_capability_listener("picture_mode", self._on_picture_mode)
 
         self.homey.set_interval(self._poll, self._poll_interval * 1000)
+        # Poll once shortly after init so the tile reflects the projector's
+        # real power state within seconds of a restart, instead of showing a
+        # stale value until the first interval poll.
+        self.homey.set_timeout(self._poll, 3000)
         self.log(f"Polling every {self._poll_interval}s | "
                  f"Lamp warning at {self._lamp_warning_hours}h | "
                  f"Network standby: {self._network_standby}")
@@ -420,6 +435,12 @@ class BenQSH915Device(Device):
     # ------------------------------------------------------------------
 
     async def _on_onoff(self, value, opts=None):
+        # Suppress power commands during the post-restart guard window. Homey
+        # re-delivers the stored onoff value on startup, which would otherwise
+        # switch the projector on (or off) without anyone touching it.
+        if time.monotonic() < self._startup_guard_until:
+            self.log(f"Ignoring onoff={value} during startup guard (restart state-restore)")
+            return
         if value:
             await self._turn_on()
         else:

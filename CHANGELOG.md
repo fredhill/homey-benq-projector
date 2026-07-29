@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.10 — 2026-09-04
+
+### Fixed
+- The projector no longer powers on by itself when the Homey server restarts. On restart Homey re-delivers the last stored on/off value to the app, which was being treated as a real command. Power actuation is now ignored for a short guard window after startup, so a restart only reads the projector's state instead of changing it.
+- Added an immediate status poll on startup so the tile shows the projector's real power state within seconds of a restart.
+
 ## 1.0.9 — 2026-07-01
 
 ### Fixed
