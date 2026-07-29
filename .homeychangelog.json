@@ -19,5 +19,8 @@
   },
   "1.0.9": {
     "en": "Fixed the projector randomly showing as unavailable every few minutes (stale network connection), plus a rare background crash."
+  },
+  "1.0.10": {
+    "en": "Fixed the projector turning itself on when the Homey server restarts."
   }
 }
