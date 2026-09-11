@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.11 — 2026-09-11
+
+### Fixed
+- The projector could still power itself on after a Homey system update. The previous fix only ignored power commands for a fixed window after startup, and a slow firmware-update reboot delivered Homey's state-restore after that window had expired. The app now also remembers the on/off value Homey had stored at startup and ignores any later command that merely repeats it, since a person toggling the tile always asks for the opposite of what is shown. Restarts no longer actuate the projector regardless of how long the system takes to come back.
+
 ## 1.0.10 — 2026-09-04
 
 ### Fixed

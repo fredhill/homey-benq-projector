@@ -113,9 +113,20 @@ class BenQSH915Device(Device):
         self._eco_blank          = False   # tracked locally (BenQ only has toggle)
         self._marked_available   = None    # last availability we reported (None = unknown)
 
-        # Ignore power actuation during Homey's post-restart state-restore.
-        # Set before any capability listener is registered below.
+        # ── Restart state-restore protection ──────────────────────────────
+        # After a restart Homey re-delivers the last stored onoff value to the
+        # capability listener. A purely time-based guard is a race we lose when
+        # the system boots slowly (e.g. after a firmware update), so we also
+        # remember the value Homey is holding right now. A later command that
+        # merely repeats that stored value is a restore echo, not a person
+        # pressing a button, and must never actuate the projector.
+        # Captured before any capability listener is registered below.
         self._startup_guard_until = time.monotonic() + _STARTUP_GUARD_SECONDS
+        self._restore_echo_armed  = True
+        try:
+            self._restore_echo_value = self.get_capability_value("onoff")
+        except Exception:
+            self._restore_echo_value = None
 
         # Flow trigger state — last-known values so we only fire on change
         self._prev_power         = None
@@ -306,6 +317,9 @@ class BenQSH915Device(Device):
             self._fail_count = 0
             await self._apply_bulk_status(data)
             await self._mark_available()
+            # Real state is now confirmed and written back to Homey, so any
+            # further command reflects reality rather than a stale restore.
+            self._restore_echo_armed = False
 
         except requests.exceptions.ConnectionError:
             if self._network_standby:
@@ -435,16 +449,41 @@ class BenQSH915Device(Device):
     # ------------------------------------------------------------------
 
     async def _on_onoff(self, value, opts=None):
-        # Suppress power commands during the post-restart guard window. Homey
-        # re-delivers the stored onoff value on startup, which would otherwise
-        # switch the projector on (or off) without anyone touching it.
-        if time.monotonic() < self._startup_guard_until:
-            self.log(f"Ignoring onoff={value} during startup guard (restart state-restore)")
+        # Homey re-delivers the stored onoff value after a restart, which would
+        # otherwise switch the projector on (or off) with nobody touching it.
+        if self._is_restart_echo(value):
             return
         if value:
             await self._turn_on()
         else:
             await self._turn_off()
+
+    def _is_restart_echo(self, value):
+        """
+        True if this power command is Homey restoring state after a restart
+        rather than a real user or Flow action.
+
+        Two independent checks, because the delivery time varies with how long
+        the system takes to boot:
+          1. Anything arriving inside the startup window is a restore.
+          2. After that, a command that merely repeats the value Homey already
+             had stored at init is a restore echo. A person toggling the tile
+             always asks for the opposite of what is displayed, so a repeat of
+             the stored value is never a genuine press.
+        The echo check disarms after it fires once, and after the first poll
+        confirms the projector's real state (from then on Homey's stored value
+        matches reality, so every command is genuine).
+        """
+        if time.monotonic() < self._startup_guard_until:
+            self.log(f"Ignoring onoff={value} during startup window (restart state-restore)")
+            return True
+        if self._restore_echo_armed and value == self._restore_echo_value:
+            self._restore_echo_armed = False
+            self.log(f"Ignoring onoff={value} — repeats the value stored before restart "
+                     f"(late state-restore, projector left untouched)")
+            return True
+        self._restore_echo_armed = False
+        return False
 
     async def _turn_on(self):
         url = f"http://{self._ip}/cgi-bin/webctrl.cgi.elf?&t:26,c:5,p:851977,v:9"
