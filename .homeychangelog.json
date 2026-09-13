@@ -22,5 +22,8 @@
   },
   "1.0.10": {
     "en": "Fixed the projector turning itself on when the Homey server restarts."
+  },
+  "1.0.11": {
+    "en": "Fixed the projector turning itself on after a Homey system update or restart."
   }
 }
